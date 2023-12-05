@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  php:
+    image: ow-start
+    build: ./
+    container_name: ows-php
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_PASSWORD=verysecurepassword
+      - MYSQL_DATABASE=hive
+      - MYSQL_USER=user
+    depends_on:
+      - db
+
+  db:
+    image: mysql:latest
+    container_name: ows-mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=verysecurepassword
+      - MYSQL_DATABASE=hive
+      - MYSQL_PASSWORD=verysecurepassword
+      - MYSQL_USER=user
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./hive.sql:/docker-entrypoint-initdb.d/hive.sql:ro
