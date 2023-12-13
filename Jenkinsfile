@@ -1,9 +1,20 @@
 pipeline {
-    agent { docker { image 'php:8.3.0-alpine3.19' } }
+    agent none
     stages {
-        stage('build') {
+        stage('PHP') {
+            agent {
+                docker { image 'ow-start:latest' }
+            }
             steps {
                 sh 'php --version'
+            }
+        }
+        stage('DB') {
+            agent {
+                docker { image 'mysql:latest' }
+            }
+            steps {
+                sh 'mysql --version'
             }
         }
     }
