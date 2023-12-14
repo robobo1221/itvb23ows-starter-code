@@ -47,16 +47,16 @@ pipeline {
             }
         }
 
-        stage('Publish Docker Images') {
-            steps {
-                script {
-                    docker.withRegistry('https://<registry>', 'registry-credentials') {
-                        docker.image(DOCKER_IMAGE_PHP).push()
-                        docker.image(DOCKER_IMAGE_MYSQL).push()
-                    }
-                }
-            }
-        }
+        //stage('Publish Docker Images') {
+        //    steps {
+        //        script {
+        //            docker.withRegistry('https://<registry>', 'registry-credentials') {
+        //                docker.image(DOCKER_IMAGE_PHP).push()
+        //                docker.image(DOCKER_IMAGE_MYSQL).push()
+        //            }
+        //        }
+        //    }
+        //}
     }
 
     post {
