@@ -25,17 +25,17 @@ pipeline {
             }
         }
 
-        stage('Build and Run Docker Compose') {
-            steps {
-                script {
-                    dockerComposeBuild = "docker-compose -f docker-compose.yml build"
-                    dockerComposeUp = "docker-compose -f docker-compose.yml up -d"
-
-                    sh "${dockerComposeBuild}"
-                    sh "${dockerComposeUp}"
-                }
-            }
-        }
+        //stage('Build and Run Docker Compose') {
+        //    steps {
+        //        script {
+        //            dockerComposeBuild = "docker-compose -f docker-compose.yml build"
+        //            dockerComposeUp = "docker-compose -f docker-compose.yml up -d"
+        //
+        //            sh "${dockerComposeBuild}"
+        //            sh "${dockerComposeUp}"
+        //        }
+        //    }
+        //}
 
         stage('Test MySQL Container') {
             steps {
