@@ -9,7 +9,7 @@ COPY casc.yaml /var/jenkins_home/casc.yaml
 
 USER root
 RUN apt-get update && \
-    apt-get install -y docker.io && \
+    apt-get install -y docker.io docker-compose && \
     rm -rf /var/lib/apt/lists/* && \
     usermod -aG docker jenkins
 USER jenkins
