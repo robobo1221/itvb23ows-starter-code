@@ -48,12 +48,12 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            // Clean up Docker Compose containers
-            script {
-                sh "docker-compose -f docker-compose.yml down"
-            }
-        }
-    }
+    //post {
+    //    always {
+    //        // Clean up Docker Compose containers
+    //        script {
+    //            sh "docker-compose -f docker-compose.yml down"
+    //        }
+    //    }
+    //}
 }
