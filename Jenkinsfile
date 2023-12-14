@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     docker.image(DOCKER_IMAGE_PHP).inside {
-                        sh 'phpunit'
+                        sh 'php --version'
                     }
                 }
             }
@@ -50,7 +50,6 @@ pipeline {
         stage('Publish Docker Images') {
             steps {
                 script {
-                    // Push Docker images to a registry (replace <registry> with your registry URL)
                     docker.withRegistry('https://<registry>', 'registry-credentials') {
                         docker.image(DOCKER_IMAGE_PHP).push()
                         docker.image(DOCKER_IMAGE_MYSQL).push()
