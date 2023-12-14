@@ -25,18 +25,6 @@ pipeline {
             }
         }
 
-        //stage('Build and Run Docker Compose') {
-        //    steps {
-        //        script {
-        //            dockerComposeBuild = "docker-compose -f docker-compose.yml build"
-        //            dockerComposeUp = "docker-compose -f docker-compose.yml up -d"
-        //
-        //            sh "${dockerComposeBuild}"
-        //            sh "${dockerComposeUp}"
-        //        }
-        //    }
-        //}
-
         stage('Test MySQL Container') {
             steps {
                 script {
@@ -47,21 +35,17 @@ pipeline {
             }
         }
 
-        //stage('Publish Docker Images') {
-        //    steps {
-        //        script {
-        //            docker.withRegistry('https://<registry>', 'registry-credentials') {
-        //                docker.image(DOCKER_IMAGE_PHP).push()
-        //                docker.image(DOCKER_IMAGE_MYSQL).push()
-        //            }
-        //        }
-        //    }
-        //}
+        stage('Run Docker Containers') {
+            steps {
+                script {
+                    sh "docker-compose -f docker-compose.yml up -d"
+                }
+            }
+        }
     }
 
     post {
         always {
-            // Clean up Docker Compose containers
             script {
                 sh "docker-compose -f docker-compose.yml down"
             }
