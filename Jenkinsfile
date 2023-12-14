@@ -10,7 +10,7 @@ pipeline {
         stage('Build PHP Image') {
             steps {
                 script {
-                    docker.build(DOCKER_IMAGE_PHP, '-f Dockerfile.php .')
+                    docker.build(DOCKER_IMAGE_PHP, '-f Dockerfile .')
                 }
             }
         }
