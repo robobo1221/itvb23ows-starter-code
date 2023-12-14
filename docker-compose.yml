@@ -18,6 +18,8 @@ services:
 
   db:
     image: mysql:latest
+    expose:
+      - "3306"
     container_name: ows-mysql
     restart: always
     environment:
