@@ -7,24 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Build PHP Image') {
-            steps {
-                script {
-                    docker.build(DOCKER_IMAGE_PHP, '-f Dockerfile .')
-                }
-            }
-        }
-
-        stage('Test PHP Image') {
-            steps {
-                script {
-                    docker.image(DOCKER_IMAGE_PHP).inside {
-                        sh 'php --version'
-                    }
-                }
-            }
-        }
-
         stage('Build and Run Docker Compose') {
             steps {
                 script {
@@ -42,6 +24,16 @@ pipeline {
                 script {
                     docker.image(DOCKER_IMAGE_MYSQL).inside {
                         sh "mysql --version"
+                    }
+                }
+            }
+        }
+
+        stage('Test PHP Container') {
+            steps {
+                script {
+                    docker.image(DOCKER_IMAGE_PHP).inside {
+                        sh 'php --version'
                     }
                 }
             }
