@@ -1,1 +1,1 @@
-docker run -v /var/run/docker.sock:/var/run/docker.sock --privileged --name jenkins --rm -p 8080:8080 --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins
+docker run -u root -v jenkinshome:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --privileged --name jenkins --rm -p 8080:8080 -p 50000:50000 --env JENKINS_ADMIN_ID=admin --env JENKINS_ADMIN_PASSWORD=password jenkins

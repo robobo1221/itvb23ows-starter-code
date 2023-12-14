@@ -1,20 +1,70 @@
 pipeline {
-    agent none
+    agent any
+
+    environment {
+        DOCKER_IMAGE_PHP = 'ow-start:latest'
+        DOCKER_IMAGE_MYSQL = 'mysql:latest'
+    }
+
     stages {
-        stage('PHP') {
-            agent {
-                docker { image 'ow-start:latest' }
-            }
+        stage('Build PHP Image') {
             steps {
-                sh 'php --version'
+                script {
+                    docker.build(DOCKER_IMAGE_PHP, '-f Dockerfile.php .')
+                }
             }
         }
-        stage('DB') {
-            agent {
-                docker { image 'mysql:latest' }
-            }
+
+        stage('Test PHP Image') {
             steps {
-                sh 'mysql --version'
+                script {
+                    docker.image(DOCKER_IMAGE_PHP).inside {
+                        sh 'phpunit'
+                    }
+                }
+            }
+        }
+
+        stage('Build and Run Docker Compose') {
+            steps {
+                script {
+                    dockerComposeBuild = "docker-compose -f docker-compose.yml build"
+                    dockerComposeUp = "docker-compose -f docker-compose.yml up -d"
+
+                    sh "${dockerComposeBuild}"
+                    sh "${dockerComposeUp}"
+                }
+            }
+        }
+
+        stage('Test MySQL Container') {
+            steps {
+                script {
+                    docker.image(DOCKER_IMAGE_MYSQL).inside {
+                        sh "mysql --version"
+                    }
+                }
+            }
+        }
+
+        stage('Publish Docker Images') {
+            steps {
+                script {
+                    // Push Docker images to a registry (replace <registry> with your registry URL)
+                    docker.withRegistry('https://<registry>', 'registry-credentials') {
+                        docker.image(DOCKER_IMAGE_PHP).push()
+                        docker.image(DOCKER_IMAGE_MYSQL).push()
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up Docker Compose containers
+            script {
+                sh "docker-compose -f docker-compose.yml down"
             }
         }
     }
