@@ -15,6 +15,9 @@ services:
       - MYSQL_USER=user
     depends_on:
       - db
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
 
   db:
     image: mysql:latest

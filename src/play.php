@@ -1,9 +1,10 @@
 <?php
 
-session_start();
-
 use Util;
 use Database;
+
+session_start();
+header('Location: index.php');
 
 include_once 'util.php';
 
@@ -35,5 +36,3 @@ if (!$hand[$piece]) {
     $stmt->execute();
     $_SESSION['last_move'] = $db->insert_id;
 }
-
-header('Location: index.php');

@@ -12,10 +12,13 @@ RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
 WORKDIR /app
 
-COPY . /app
+COPY ./src /app/src
+COPY ./tests /app/tests
+COPY ./composer.json /app/composer.json
+COPY ./composer.lock /app/composer.lock
 
 RUN composer install --no-interaction
 
 EXPOSE 8000
 
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "src"]
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "./src"]
