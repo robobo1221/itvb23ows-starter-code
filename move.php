@@ -2,6 +2,8 @@
 
 session_start();
 
+use Util;
+use Database;
 include_once 'util.php';
 
 $from = $_POST['from'];
@@ -12,17 +14,17 @@ $board = $_SESSION['board'];
 $hand = $_SESSION['hand'][$player];
 unset($_SESSION['error']);
 
-if (!isset($board[$from]))
+if (!isset($board[$from])) {
     $_SESSION['error'] = 'Board position is empty';
-elseif ($board[$from][count($board[$from])-1][0] != $player)
+} elseif ($board[$from][count($board[$from])-1][0] != $player) {
     $_SESSION['error'] = "Tile is not owned by player";
-elseif ($hand['Q'])
+} elseif ($hand['Q']) {
     $_SESSION['error'] = "Queen bee is not played";
-else {
+} else {
     $tile = array_pop($board[$from]);
-    if (!hasNeighBour($to, $board))
+    if (!Util\hasNeighBour($to, $board)) {
         $_SESSION['error'] = "Move would split hive";
-    else {
+    } else {
         $all = array_keys($board);
         $queue = [array_shift($all)];
         while ($queue) {
@@ -43,7 +45,7 @@ else {
             if ($from == $to) $_SESSION['error'] = 'Tile must move';
             elseif (isset($board[$to]) && $tile[1] != "B") $_SESSION['error'] = 'Tile not empty';
             elseif ($tile[1] == "Q" || $tile[1] == "B") {
-                if (!slide($board, $from, $to))
+                if (!Util\slide($board, $from, $to))
                     $_SESSION['error'] = 'Tile must slide';
             }
         }
@@ -52,12 +54,16 @@ else {
         if (isset($board[$from])) array_push($board[$from], $tile);
         else $board[$from] = [$tile];
     } else {
-        if (isset($board[$to])) array_push($board[$to], $tile);
-        else $board[$to] = [$tile];
+        if (isset($board[$to])) {
+            array_push($board[$to], $tile);
+        } else {
+            $board[$to] = [$tile];
+        }
         $_SESSION['player'] = 1 - $_SESSION['player'];
-        $db = include 'database.php';
-        $stmt = $db->prepare('insert into moves (game_id, type, move_from, move_to, previous_id, state) values (?, "move", ?, ?, ?, ?)');
-        $stmt->bind_param('issis', $_SESSION['game_id'], $from, $to, $_SESSION['last_move'], get_state());
+        $db = include_once 'database.php';
+        $sql_statement = 'insert into moves (game_id, type, move_from, move_to, previous_id, state) values (?, "move", ?, ?, ?, ?)';
+        $stmt = $db->prepare($sql_statement);
+        $stmt->bind_param('issis', $_SESSION['game_id'], $from, $to, $_SESSION['last_move'], Database\getState());
         $stmt->execute();
         $_SESSION['last_move'] = $db->insert_id;
     }
@@ -65,5 +71,3 @@ else {
 }
 
 header('Location: index.php');
-
-?>
