@@ -18,4 +18,4 @@ RUN composer install --no-interaction
 
 EXPOSE 8000
 
-CMD ["php", "-S", "0.0.0.0:8000"]
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "src"]
