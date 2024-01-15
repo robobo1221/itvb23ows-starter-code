@@ -1,9 +1,6 @@
 <?php
     session_start();
 
-    use Util;
-    include_once 'util.php';
-
     if (!isset($_SESSION['board'])) {
         header('Location: restart.php');
         exit(0);
