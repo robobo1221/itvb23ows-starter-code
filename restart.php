@@ -1,7 +1,5 @@
 <?php
 
-use Database;
-
 session_start();
 
 $_SESSION['board'] = [];
