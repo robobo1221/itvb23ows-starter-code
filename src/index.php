@@ -1,7 +1,14 @@
 <?php
-    include_once "util.php";
-
     session_start();
+
+    use Util\BoardUtil;
+    use Database\DatabaseConnection;
+
+    include_once "util.php";
+    include_once "database.php";
+
+    $databaseConnection = new DatabaseConnection();
+    $db = $databaseConnection->getMysqli();
 
     if (!isset($_SESSION['board'])) {
         header('Location: restart.php');
@@ -12,7 +19,7 @@
     $hand = $_SESSION['hand'];
 
     $to = [];
-    foreach ($GLOBALS['OFFSETS'] as $pq) {
+    foreach (BoardUtil::$OFFSETS as $pq) {
         foreach (array_keys($board) as $pos) {
             $pq2 = explode(',', $pos);
             $to[] = ($pq[0] + $pq2[0]).','.($pq[1] + $pq2[1]);
@@ -173,10 +180,13 @@
         <form method="post" action="restart.php">
             <input type="submit" value="Restart">
         </form>
-        <strong><?php if (isset($_SESSION['error'])) echo($_SESSION['error']); unset($_SESSION['error']); ?></strong>
+        <strong><?php 
+        if (isset($_SESSION['error'])) {
+            echo($_SESSION['error']);
+        } 
+        unset($_SESSION['error']); ?></strong>
         <ol>
             <?php
-                $db = include_once 'database.php';
                 $stmt = $db->prepare('SELECT * FROM moves WHERE game_id = '.$_SESSION['game_id']);
                 $stmt->execute();
                 $result = $stmt->get_result();
