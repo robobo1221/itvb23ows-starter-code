@@ -53,9 +53,24 @@ class BoardUtil {
                 $common[] = $p.",".$q;
             }
         }
+        print_r($board);
         if (!$board[$common[0]] && !$board[$common[1]] && !$board[$from] && !$board[$to]) {
             return false;
         }
         return min(self::len($board[$common[0]]), self::len($board[$common[1]])) <= max(self::len($board[$from]), self::len($board[$to]));
+    }
+
+    public static function getAvailableTiles($hand) {
+        $tiles = [];
+
+        foreach ($hand as $tile => $ct) {
+            if ($ct == 0) {
+                continue;
+            }
+
+            array_push($tiles, $tile);
+        }
+
+        return $tiles;
     }
 }

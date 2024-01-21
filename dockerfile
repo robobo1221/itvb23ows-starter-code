@@ -16,6 +16,7 @@ COPY ./src /app/src
 COPY ./tests /app/tests
 COPY ./composer.json /app/composer.json
 COPY ./composer.lock /app/composer.lock
+COPY ./phpunit.xml /app/phpunit.xml
 
 RUN composer install --no-interaction
 

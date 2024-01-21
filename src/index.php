@@ -143,7 +143,8 @@
         <form method="post" action="play.php">
             <select name="piece">
                 <?php
-                    foreach ($hand[$player] as $tile => $ct) {
+                    $availableTiles = BoardUtil::getAvailableTiles($hand[$player]);
+                    foreach ($availableTiles as $tile) {
                         echo "<option value=\"$tile\">$tile</option>";
                     }
                 ?>
