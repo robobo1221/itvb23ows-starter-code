@@ -13,11 +13,28 @@ class GameRules {
         return isset($board[$position]);
     }
 
-    static function positionHasNeighBour($position, $board): bool {
+    static function positionHasNeighBour($board, $position): bool {
         return !count($board) || BoardUtil::hasNeighBour($position, $board);
     }
 
     static function positionHasOpposingNeighBour($hand, $player, $position, $board): bool {
-        return !(array_sum($hand) < 11) || BoardUtil::neighboursAreSameColor($player, $position, $board);
+        return array_sum($hand) < 11 && !BoardUtil::neighboursAreSameColor($player, $position, $board);
+    }
+    
+    static function needsToPlayQueenBee($hand): bool {
+        return array_sum($hand) <= 8 && $hand['Q'];
+    }
+
+    static function isValidListedMove($hand, $board, $player, $to): bool {
+        if (
+            self::isPositionOccupied($board, $to) ||
+            !self::positionHasNeighBour($board, $to) ||
+            self::positionHasOpposingNeighBour($hand, $player, $to, $board) ||
+            self::needsToPlayQueenBee($hand)
+        ) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

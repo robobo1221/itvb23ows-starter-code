@@ -2,10 +2,12 @@
     session_start();
 
     use Util\BoardUtil;
+    use Game\GameRules;
     use Database\DatabaseConnection;
 
     include_once "util.php";
     include_once "database.php";
+    include_once "rules.php";
 
     $databaseConnection = new DatabaseConnection();
     $db = $databaseConnection->getMysqli();
@@ -18,17 +20,9 @@
     $player = $_SESSION['player'];
     $hand = $_SESSION['hand'];
 
-    $to = [];
-    foreach (BoardUtil::$OFFSETS as $pq) {
-        foreach (array_keys($board) as $pos) {
-            $pq2 = explode(',', $pos);
-            $to[] = ($pq[0] + $pq2[0]).','.($pq[1] + $pq2[1]);
-        }
-    }
-    $to = array_unique($to);
-    if (!count($to)) {
-        $to[] = '0,0';
-    }
+    var_dump($board["0,1"][0]);
+
+    $to = BoardUtil::getAvailablePlays($hand[$player], $board, $player);
 ?>
 <!DOCTYPE html>
 <html lang="en" xml:lang="en">

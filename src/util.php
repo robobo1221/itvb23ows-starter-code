@@ -1,6 +1,9 @@
 <?php
 namespace Util;
 
+use Game\GameRules;
+include_once "rules.php";
+
 class BoardUtil {
     public static $OFFSETS = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
 
@@ -72,5 +75,27 @@ class BoardUtil {
         }
 
         return $tiles;
+    }
+
+    public static function getAvailablePlays($hand, $board, $player) {
+        $to = [];
+        foreach (self::$OFFSETS as $pq) {
+            foreach (array_keys($board) as $pos) {
+                $pq2 = explode(',', $pos);
+                $tempTo = ($pq[0] + $pq2[0]).','.($pq[1] + $pq2[1]);
+                
+                // Make sure we only add the move to the list if it's valid.
+                if (GameRules::isValidListedMove($hand, $board, $player, $tempTo)) {
+                    $to[] = $tempTo;
+                }
+            }
+        }
+        
+        $to = array_unique($to);
+        if (!count($to)) {
+            $to[] = '0,0';
+        }
+
+        return $to;
     }
 }

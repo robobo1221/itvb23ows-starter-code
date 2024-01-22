@@ -3,11 +3,13 @@ namespace Game;
 session_start();
 
 use Util\BoardUtil;
+use Game\GameRules;
 use Database\DatabaseConnection;
 use Database\GameState;
 
 include_once 'util.php';
 include_once 'database.php';
+include_once 'rules.php';
 
 class Play {
     private $db;
@@ -21,15 +23,15 @@ class Play {
         $board = $_SESSION['board'];
         $hand = $_SESSION['hand'][$player];
 
-        if (!$hand[$piece]) {
+        if (!GameRules::playerHasTile($hand, $piece)) {
             $_SESSION['error'] = "Player does not have tile";
-        } elseif (isset($board[$to])) {
+        } elseif (GameRules::isPositionOccupied($board, $to)) {
             $_SESSION['error'] = 'Board position is not empty';
-        } elseif (count($board) && !BoardUtil::hasNeighBour($to, $board)) {
+        } elseif (!GameRules::positionHasNeighBour($board, $to)) {
             $_SESSION['error'] = "board position has no neighbour";
-        } elseif (array_sum($hand) < 11 && !BoardUtil::neighboursAreSameColor($player, $to, $board)) {
+        } elseif (GameRules::positionHasOpposingNeighBour($hand, $player, $to, $board)) {
             $_SESSION['error'] = "Board position has opposing neighbour";
-        } elseif (array_sum($hand) <= 8 && $hand['Q']) {
+        } elseif (GameRules::needsToPlayQueenBee($hand)) {
             $_SESSION['error'] = 'Must play queen bee';
         } else {
             $_SESSION['board'][$to] = [[$_SESSION['player'], $piece]];
