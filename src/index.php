@@ -20,8 +20,6 @@
     $player = $_SESSION['player'];
     $hand = $_SESSION['hand'];
 
-    var_dump($board["0,1"][0]);
-
     $to = BoardUtil::getAvailablePlays($hand[$player], $board, $player);
 ?>
 <!DOCTYPE html>
@@ -155,7 +153,9 @@
         <form method="post" action="move.php">
             <select name="from">
                 <?php
-                    foreach (array_keys($board) as $pos) {
+                    $from = BoardUtil::getAvailableFrom($board, $player);
+
+                    foreach ($from as $pos) {
                         echo "<option value=\"$pos\">$pos</option>";
                     }
                 ?>

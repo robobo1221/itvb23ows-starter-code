@@ -67,11 +67,12 @@ class BoardUtil {
         $tiles = [];
 
         foreach ($hand as $tile => $ct) {
+            // Make sure we don't add the tiles once there are no one left inside of the array.
             if ($ct == 0) {
                 continue;
             }
 
-            array_push($tiles, $tile);
+            $tiles[] = $tile;
         }
 
         return $tiles;
@@ -97,5 +98,20 @@ class BoardUtil {
         }
 
         return $to;
+    }
+
+    public static function getAvailableFrom($board, $player) {
+        $from = [];
+
+        foreach ($board as $pos => $playerPiece) {
+            // Make sure discard all the pieces that aren't of the current player.
+            if ($player !== $playerPiece[0][0]) {
+                continue;
+            }
+
+            $from[] = $pos;
+        }
+
+        return $from;
     }
 }
