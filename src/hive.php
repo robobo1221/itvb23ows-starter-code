@@ -8,7 +8,7 @@ use Database\GameState;
 include_once "database.php";
 
 class Hive {
-    private DataHandler $data;
+    private DataService $data;
     private $hand;
     private $player;
     private $board;
@@ -129,7 +129,7 @@ class Hive {
 
     public function checkValidPlay($piece, $to) {
         // Logic for checking if a play is valid
-        if (!GameRules::playerHasTile($this->getHand(), $piece)) {
+        if (!GameRules::playerHasTile($this->getHand($this->player), $piece)) {
             $_SESSION['error'] = "Player does not have tile";
             return false;
         } elseif (GameRules::isPositionOccupied($this->board, $to)) {
@@ -138,10 +138,10 @@ class Hive {
         } elseif (!GameRules::positionHasNeighBour($this->board, $to)) {
             $_SESSION['error'] = "board position has no neighbour";
             return false;
-        } elseif (GameRules::positionHasOpposingNeighBour($this->getHand(), $this->player, $to, $this->board)) {
+        } elseif (GameRules::positionHasOpposingNeighBour($this->getHand($this->player), $this->player, $to, $this->board)) {
             $_SESSION['error'] = "Board position has opposing neighbour";
             return false;
-        } elseif (GameRules::needsToPlayQueenBee($this->getHand())) {
+        } elseif (GameRules::needsToPlayQueenBee($this->getHand($this->player))) {
             $_SESSION['error'] = 'Must play queen bee';
             return false;
         }
@@ -155,6 +155,7 @@ class Hive {
         $this->hand = [0 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3], 1 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3]];
         $this->player = 0;
 
+        $this->saveState();
         $_SESSION['game_id'] = $this->data->initGame();
     }
 
@@ -182,6 +183,63 @@ class Hive {
         $_SESSION['last_move'] = $inset_id;
     }
 
+    public function renderBoard() {
+        // Logic for rendering the game board
+        $min_p = 1000;
+        $min_q = 1000;
+        foreach ($this->board as $pos => $tile) {
+            $pq = explode(',', $pos);
+            if ($pq[0] < $min_p) {
+                $min_p = $pq[0];
+            }
+
+            if ($pq[1] < $min_q) {
+                $min_q = $pq[1];
+            }
+        }
+        foreach (array_filter($this->board) as $pos => $tile) {
+            $pq = explode(',', $pos);
+            $pq[0];
+            $pq[1];
+            $h = count($tile);
+            echo '<div class="tile player';
+            echo $tile[$h-1][0];
+            if ($h > 1) {
+                echo ' stacked';
+            }
+            echo '" style="left: ';
+            echo ($pq[0] - $min_p) * 4 + ($pq[1] - $min_q) * 2;
+            echo 'em; top: ';
+            echo ($pq[1] - $min_q) * 4;
+            echo "em;\">($pq[0],$pq[1])<span>";
+            echo $tile[$h-1][1];
+            echo '</span></div>';
+        }
+    }
+
+    public function getPossibleMoves() {
+        // Logic for getting the possible moves
+        return BoardUtil::getAvailablePlays($this->hand[$this->player], $this->board, $this->player);
+    }
+
+    public function getPossibleFromMoves() {
+        // Logic for getting the possible from moves
+        return BoardUtil::getAvailableFrom($this->board, $this->player);
+    }
+
+    public function getAvailableTiles() {
+        // Logic for getting the available tiles
+        return BoardUtil::getAvailableTiles($this->hand[$this->player]);
+    }
+
+    public function getBoard() {
+        return $this->board;
+    }
+
+    public function getPlayer() {
+        return $this->player;
+    }
+
     public function manageHand() {
         // Logic for managing the player's hand
     }
@@ -194,11 +252,7 @@ class Hive {
         // Logic for managing the game board
     }
 
-    public function getHand() {
-        return $this->hand[$this->player];
+    public function getHand($player) {
+        return $this->hand[$player];
     }
 }
-
-$db = new DatabaseConnection();
-$dataHandler = new DataHandler($db->getMysqli());
-$game = new Hive($dataHandler);

@@ -1,10 +1,14 @@
 <?php
 
-class DataHandler {
+class DataService {
     private $db;
 
     public function __construct(mysqli $database) {
         $this->db = $database;
+    }
+
+    public static function getDatabaseConnection() {
+        return new mysqli($_ENV['MYSQL_HOST'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD'], $_ENV['MYSQL_DATABASE']);
     }
 
     public function initGame() {
@@ -15,7 +19,7 @@ class DataHandler {
 
     public function registerMove($gameId, $type, $moveFrom, $moveTo, $lastMove, $state) {
         $stmt = $this->db->prepare('insert into moves (game_id, type, move_from, move_to, previous_id, state) values (?, ?, ?, ?, ?, ?)');
-        $stmt->bind_param('issis', $gameId, $type, $moveFrom, $moveTo, $lastMove, $state);
+        $stmt->bind_param('isssis', $gameId, $type, $moveFrom, $moveTo, $lastMove, $state);
         $stmt->execute();
 
         return $this->db->insert_id;
@@ -30,10 +34,11 @@ class DataHandler {
     }
 
     public function getPreviousGameMoves($gameId) {
-        $stmt = $db->prepare('SELECT * FROM moves WHERE game_id = ?');
+        $stmt = $this->db->prepare('SELECT * FROM moves WHERE game_id = ?');
         $stmt->bind_param('i', $gameId);    // Make sure we bind the parameter to the statement. Otherwise injection is possible.
         $stmt->execute();
         $result = $stmt->get_result();
 
         return $result;
+    }
 }
