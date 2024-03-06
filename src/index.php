@@ -92,7 +92,7 @@
             </select>
             <select name="to">
                 <?php
-                    foreach ($to as $pos) {
+                    foreach ($hive->getAllMoves() as $pos) {
                         echo "<option value=\"$pos\">$pos</option>";
                     }
                 ?>
@@ -108,8 +108,11 @@
         <strong><?php 
         if (isset($_SESSION['error'])) {
             echo($_SESSION['error']);
-        } 
-        unset($_SESSION['error']); ?></strong>
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            unset($_SESSION['error']);
+        } ?></strong>
         <ol>
             <?php
                 $moves = $dataService->getPreviousGameMoves($_SESSION['game_id']);

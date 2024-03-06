@@ -8,12 +8,12 @@ use Database\GameState;
 include_once "database.php";
 
 class Hive {
-    private DataService $data;
-    private $hand;
-    private $player;
-    private $board;
+    public ?DataService $data;
+    public $hand;
+    public $player;
+    public $board;
 
-    public function __construct($data) {
+    public function __construct($data = null) {
         $this->data = $data;
 
         session_start();
@@ -34,23 +34,10 @@ class Hive {
         }
 
         $tile = array_pop($this->board[$from]);
+        $this->board[$to] = [$tile];
 
-        if (isset($_SESSION['error'])) {
-            if (isset($this->board[$from])) {
-                array_push($this->board[$from], $tile);
-            } else {
-                $this->board[$from] = [$tile];
-            }
-        } else {
-            if (isset($this->board[$to])) {
-                array_push($this->board[$to], $tile);
-            } else {
-                $this->board[$to] = [$tile];
-            }
-
-            $this->player = 1 - $this->player;
-            $this->saveMove($from, $to, 'move');
-        }
+        $this->player = 1 - $this->player;
+        $this->saveMove($from, $to, 'move');
     }
 
     public function checkValidMove($from, $to) {
@@ -94,7 +81,7 @@ class Hive {
                     } else if (isset($this->board[$to]) && $tile[1] != "B") {
                         $_SESSION['error'] = 'Tile not empty';
                         return false;
-                    } else if ($tile[1] == "Q" || $tile[1] == "B") {
+                    } else if (($tile[1] == "Q" || $tile[1] == "B")) {
                         if (!BoardUtil::slide($this->board, $from, $to)) {
                             $_SESSION['error'] = 'Tile must slide';
                             return false;
@@ -141,7 +128,7 @@ class Hive {
         } elseif (GameRules::positionHasOpposingNeighBour($this->getHand($this->player), $this->player, $to, $this->board)) {
             $_SESSION['error'] = "Board position has opposing neighbour";
             return false;
-        } elseif (GameRules::needsToPlayQueenBee($this->getHand($this->player))) {
+        } elseif (GameRules::needsToPlayQueenBee($this->getHand($this->player)) && $piece != "Q") {
             $_SESSION['error'] = 'Must play queen bee';
             return false;
         }
@@ -156,7 +143,9 @@ class Hive {
         $this->player = 0;
 
         $this->saveState();
-        $_SESSION['game_id'] = $this->data->initGame();
+        if ($this->data !== null) {
+            $_SESSION['game_id'] = $this->data->initGame();
+        }
     }
 
     public function undo() {
@@ -179,8 +168,10 @@ class Hive {
         // Logic for saving a move to the database
         $this->saveState();
 
-        $inset_id = $this->data->registerMove($_SESSION['game_id'], $type, $from, $to, $_SESSION['last_move'], $this->getState());
-        $_SESSION['last_move'] = $inset_id;
+        if ($this->data !== null) {
+            $inset_id = $this->data->registerMove($_SESSION['game_id'], $type, $from, $to, $_SESSION['last_move'], $this->getState());
+            $_SESSION['last_move'] = $inset_id;
+        }
     }
 
     public function renderBoard() {
@@ -215,6 +206,11 @@ class Hive {
             echo $tile[$h-1][1];
             echo '</span></div>';
         }
+    }
+
+    public function getAllMoves() {
+        // Logic for getting all the moves
+        return BoardUtil::getAllPlays($this->board);
     }
 
     public function getPossibleMoves() {
