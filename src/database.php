@@ -1,10 +1,9 @@
 <?php
 namespace Database;
-class GameState {
-    public static function getState() {
-        return serialize([$_SESSION['hand'], $_SESSION['board'], $_SESSION['player']]);
-    }
 
+use mysqli;
+
+class GameState {
     public static function setState($state) {
         list($a, $b, $c) = unserialize($state);
         $_SESSION['hand'] = $a;
@@ -14,13 +13,13 @@ class GameState {
 }
 
 class DatabaseConnection {
-    private $mysqli;
+    private \mysqli $mysqli;
 
     public function __construct() {
         $this->mysqli = new \mysqli($_ENV['MYSQL_HOST'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD'], $_ENV['MYSQL_DATABASE']);
     }
 
-    public function getMysqli() {
+    public function getMysqli(): mysqli {
         return $this->mysqli;
     }
 }

@@ -1,0 +1,1 @@
+{"version":1,"defects":{"HiveTest::testInvalidNonQueenMoveAfterThreeMoves":8},"times":{"BoardUtilTest::testAvailableTiles":0.005,"BoardUtilTest::testFirstAvailablePlays":0,"BoardUtilTest::testAvailablePlays":0,"BoardUtilTest::testAvailableFrom":0,"HiveTest::testInvalidNonQueenMoveAfterThreeMoves":0.001,"HiveTest::testValidQueenMoveAfterThreeMoves":0.001}}

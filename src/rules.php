@@ -30,7 +30,7 @@ class GameRules {
             self::isPositionOccupied($board, $to) ||
             !self::positionHasNeighBour($board, $to) ||
             self::positionHasOpposingNeighBour($hand, $player, $to, $board) ||
-            self::needsToPlayQueenBee($hand)
+            self::needsToPlayQueenBee($hand) && $hand['Q'] != 1
         ) {
             return false;
         } else {

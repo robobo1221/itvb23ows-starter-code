@@ -10,12 +10,10 @@ class BoardUtil {
     public static function isNeighbour($a, $b) {
         $a = explode(',', $a);
         $b = explode(',', $b);
-
-        $returnStatement = $a[0] == $b[0] && abs($a[1] - $b[1]) == 1;
-        $returnStatement = $returnStatement || ($a[1] == $b[1] && abs($a[0] - $b[0]) == 1);
-        $returnStatement = $returnStatement || ($a[0] + $a[1] == $b[0] + $b[1]);
-
-        return $returnStatement;
+        
+        return ($a[0] == $b[0] && abs($a[1] - $b[1]) == 1) ||
+               ($a[1] == $b[1] && abs($a[0] - $b[0]) == 1) ||
+               ($a[0] + $a[1] == $b[0] + $b[1]);
     }
 
     public static function hasNeighBour($a, $board) {
@@ -56,8 +54,8 @@ class BoardUtil {
                 $common[] = $p.",".$q;
             }
         }
-        print_r($board);
-        if (!$board[$common[0]] && !$board[$common[1]] && !$board[$from] && !$board[$to]) {
+
+        if (!isset($board[$common[0]]) || !isset($board[$common[1]]) || !isset($board[$from]) || !isset($board[$to])) {
             return false;
         }
         return min(self::len($board[$common[0]]), self::len($board[$common[1]])) <= max(self::len($board[$from]), self::len($board[$to]));
@@ -78,23 +76,29 @@ class BoardUtil {
         return $tiles;
     }
 
-    public static function getAvailablePlays($hand, $board, $player) {
+    public static function getAllPlays($board) {
         $to = [];
         foreach (self::$OFFSETS as $pq) {
             foreach (array_keys($board) as $pos) {
                 $pq2 = explode(',', $pos);
-                $tempTo = ($pq[0] + $pq2[0]).','.($pq[1] + $pq2[1]);
-                
-                // Make sure we only add the move to the list if it's valid.
-                if (GameRules::isValidListedMove($hand, $board, $player, $tempTo)) {
-                    $to[] = $tempTo;
-                }
+                $to[] = ($pq[0] + $pq2[0]).','.($pq[1] + $pq2[1]);
             }
         }
         
         $to = array_unique($to);
         if (!count($to)) {
             $to[] = '0,0';
+        }
+
+        return $to;
+    }
+
+    public static function getAvailablePlays($hand, $board, $player) {
+        $to = [];
+        foreach (self::getAllPlays($board) as $tempTo) {
+            if (GameRules::isValidListedMove($hand, $board, $player, $tempTo)) {
+                $to[] = $tempTo;
+            }
         }
 
         return $to;
