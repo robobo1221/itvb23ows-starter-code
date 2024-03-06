@@ -44,18 +44,14 @@ class Hive {
         // Logic for checking if a move is valid
         if (!isset($this->board[$from])) {
             $_SESSION['error'] = 'Board position is empty';
-            return false;
         } elseif ($this->board[$from][count($this->board[$from]) - 1][0] != $this->player) {
             $_SESSION['error'] = "Tile is not owned by player";
-            return false;
         } elseif ($this->hand[$this->player]['Q']) {
             $_SESSION['error'] = "Queen bee is not played";
-            return false;
         } else {
             $tile = array_pop($this->board[$from]);
             if (!BoardUtil::hasNeighBour($to, $this->board)) {
                 $_SESSION['error'] = "Move would split hive";
-                return false;
             } else {
                 $all = array_keys($this->board);
                 $queue = [array_shift($all)];
@@ -73,25 +69,26 @@ class Hive {
                 }
                 if ($all) {
                     $_SESSION['error'] = "Move would split hive";
-                    return false;
                 } else {
                     if ($from == $to) {
                         $_SESSION['error'] = 'Tile must move';
-                        return false;
                     } else if (isset($this->board[$to]) && $tile[1] != "B") {
                         $_SESSION['error'] = 'Tile not empty';
-                        return false;
                     } else if (($tile[1] == "Q" || $tile[1] == "B")) {
                         if (!BoardUtil::slide($this->board, $from, $to)) {
                             $_SESSION['error'] = 'Tile must slide';
-                            return false;
                         }  
+                    } else if ($tile[1] == "G" && !BoardUtil::grassHopper($this->board, $from, $to)) {
+                        print("yo");
+                        $_SESSION['error'] = 'Grasshopper must jump over other tiles';
+                    } else {
+                        return true;
                     }
                 }
             }
         }
 
-        return true;
+        return false;
     }
 
     public function pass() {

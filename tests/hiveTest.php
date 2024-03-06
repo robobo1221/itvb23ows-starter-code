@@ -48,4 +48,52 @@ class HiveTest extends TestCase {
         // assert
         $this->assertTrue($valid);
     }
+
+    public function testGrasshopperValidMove() {
+        // arrange
+        $hive = new Hive();
+
+        // act
+        $hive->play("G", "0,0");
+        $hive->play("A", "0,1");
+        $hive->play("Q", "0,-1");
+        $hive->play("Q", "0,2");
+
+        $valid = $hive->checkValidMove("0,0", "0,3");
+
+        // assert
+        $this->assertTrue($valid);
+    }
+
+    public function testGrasshopperInvalidLongMove() {
+        // arrange
+        $hive = new Hive();
+
+        // act
+        $hive->play("G", "0,0");
+        $hive->play("A", "0,1");
+        $hive->play("Q", "0,-1");
+        $hive->play("Q", "0,2");
+
+        $valid = $hive->checkValidMove("0,0", "0,4");
+
+        // assert
+        $this->assertFalse($valid);
+    }
+
+    public function testGrasshopperInvalidShortMove() {
+        // arrange
+        $hive = new Hive();
+
+        // act
+        $hive->play("G", "0,0");
+        $hive->play("A", "0,1");
+        $hive->play("Q", "0,-1");
+        $hive->play("Q", "0,2");
+
+        $valid = $hive->checkValidMove("0,0", "0,1");
+
+        // assert
+        $this->assertFalse($valid);
+    }
 }

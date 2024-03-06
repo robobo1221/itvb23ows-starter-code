@@ -118,4 +118,46 @@ class BoardUtil {
 
         return $from;
     }
+
+    public static function grassHopper($board, $from, $to) {
+        $posFrom = explode(',', $from);
+        $posTo = explode(',', $to);
+
+        $diffx = $posTo[0] - $posFrom[0];
+        $diffy = $posTo[1] - $posFrom[1];
+
+        // Check if the move is a straight vertical or diagonal line.
+        if (abs($diffx) != abs($diffy) && $diffx != 0 && $diffy != 0) {
+            return false;
+        }
+
+        if ($diffx == 0) {
+            $diffx = 0;
+        } else {
+            $diffx = $diffx / abs($diffx);
+        }
+
+        if ($diffy == 0) {
+            $diffy = 0;
+        } else {
+            $diffy = $diffy / abs($diffy);
+        }
+
+        $nextPosX = $posFrom[0];
+        $nextPosY = $posFrom[1];
+
+        $valid = false;
+        while ($nextPosX != $posTo[0] || $nextPosY != $posTo[1]) {
+            $pos = ($posFrom[0] + $diffx).','.($posFrom[1] + $diffy);
+
+            if (isset($board[$pos])) {
+                $valid = true;
+            }
+
+            $nextPosX += $diffx;
+            $nextPosY += $diffy;
+        }
+
+        return $valid;
+    }
 }
