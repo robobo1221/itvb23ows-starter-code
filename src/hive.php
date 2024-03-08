@@ -79,8 +79,9 @@ class Hive {
                             $_SESSION['error'] = 'Tile must slide';
                         }  
                     } else if ($tile[1] == "G" && !BoardUtil::grassHopper($this->board, $from, $to)) {
-                        print("yo");
                         $_SESSION['error'] = 'Grasshopper must jump over other tiles';
+                    } else if ($tile[1] == "A" && !BoardUtil::ant($this->board, $from, $to)) {
+                        $_SESSION['error'] = 'Ant must move to border and not be surrounded by other tiles or pushed by other tiles';
                     } else {
                         return true;
                     }

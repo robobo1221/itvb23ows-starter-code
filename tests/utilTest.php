@@ -50,4 +50,42 @@ class UtilTest extends TestCase {
         // assert
         $this->assertFalse($valid);
     }
+
+    public function testAntValidMoveBorder() {
+        // arrange
+        $board = [
+            "0,0" => [[0, "Q"]],
+            "0,1" => [[1, "A"]],
+            "-1,0" => [[0, "B"]],
+            "0,2" => [[1, "Q"]],
+            "-2,1" => [[0, "B"]],
+            "-1,2" => [[1, "B"]],
+            "0,-1" => [[0, "S"]]
+        ];
+
+        // act
+        $valid = BoardUtil::ant($board, "0,1", "0,3");
+
+        // assert
+        $this->assertTrue($valid);
+    }
+
+    public function testAntInvalidMoveSurrounded() {
+        // arrange
+        $board = [
+            "0,0" => [[0, "Q"]],
+            "0,1" => [[1, "A"]],
+            "-1,0" => [[0, "B"]],
+            "0,2" => [[1, "Q"]],
+            "-2,1" => [[0, "B"]],
+            "-1,2" => [[1, "B"]],
+            "0,-1" => [[0, "S"]]
+        ];
+
+        // act
+        $valid = BoardUtil::ant($board, "0,1", "-1,1");
+
+        // assert
+        $this->assertFalse($valid);
+    }
 }

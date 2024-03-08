@@ -160,4 +160,27 @@ class BoardUtil {
 
         return $valid;
     }
+
+    public static function ant($board, $from, $to) {
+        if ($from == $to) {
+            return false;
+        }
+
+        // Check count of neighbours. More than 5 is invalid.
+        $neighbours = 0;
+
+        foreach (self::$OFFSETS as $pq) {
+            $p = explode(',', $to)[0] + $pq[0];
+            $q = explode(',', $to)[1] + $pq[1];
+            if (isset($board["$p,$q"])) {
+                $neighbours++;
+            }
+        }
+
+        if ($neighbours > 0 && $neighbours < 5) {
+            return true;
+        }
+
+        return false;
+    }
 }
