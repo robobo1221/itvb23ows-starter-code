@@ -88,4 +88,76 @@ class UtilTest extends TestCase {
         // assert
         $this->assertFalse($valid);
     }
+
+    public function testSpiderValidThreeMoves() {
+        // arrange
+        $board = [
+            "0,0" => [[0, "Q"]],
+            "0,1" => [[1, "S"]],
+            "-1,0" => [[0, "S"]],
+            "-1,2" => [[1, "Q"]],
+            "1,-1" => [[0, "B"]],
+            "-2,3" => [[1, "B"]]
+        ];
+
+        // act
+        $valid = BoardUtil::spider($board, "-1,0", "-3,3");
+
+        // assert
+        $this->assertTrue($valid);
+    }
+
+    public function testSpiderInvalidLessThanThreeMoves() {
+        // arrange
+        $board = [
+            "0,0" => [[0, "Q"]],
+            "0,1" => [[1, "S"]],
+            "-1,0" => [[0, "S"]],
+            "-1,2" => [[1, "Q"]],
+            "1,-1" => [[0, "B"]],
+            "-2,3" => [[1, "B"]]
+        ];
+
+        // act
+        $valid = BoardUtil::spider($board, "-1,0", "0,-1");
+
+        // assert
+        $this->assertFalse($valid);
+    }
+
+    public function testSpiderInvalidMoreThanThreeMoves() {
+        // arrange
+        $board = [
+            "0,0" => [[0, "Q"]],
+            "0,1" => [[1, "S"]],
+            "-1,0" => [[0, "S"]],
+            "-1,2" => [[1, "Q"]],
+            "1,-1" => [[0, "B"]],
+            "-2,3" => [[1, "B"]]
+        ];
+
+        // act
+        $valid = BoardUtil::spider($board, "-1,0", "1,0");
+
+        // assert
+        $this->assertFalse($valid);
+    }
+
+    public function testSpiderInvalidOverlappingMove() {
+        // arrange
+        $board = [
+            "0,0" => [[0, "Q"]],
+            "0,1" => [[1, "S"]],
+            "-1,0" => [[0, "S"]],
+            "-1,2" => [[1, "Q"]],
+            "1,-1" => [[0, "B"]],
+            "-2,3" => [[1, "B"]]
+        ];
+
+        // act
+        $valid = BoardUtil::spider($board, "-1,0", "-1,0");
+
+        // assert
+        $this->assertFalse($valid);
+    }
 }

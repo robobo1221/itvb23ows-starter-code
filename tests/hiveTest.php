@@ -129,4 +129,36 @@ class HiveTest extends TestCase {
         // assert
         $this->assertFalse($valid);
     }
+
+    public function testSpiderValidMove() {
+        // arrange and act
+        $this->hive->restart();
+        $this->hive->play("Q", "0,0");
+        $this->hive->play("S", "0,1");
+        $this->hive->play("S", "-1,0");
+        $this->hive->play("Q", "-1,2");
+        $this->hive->play("B", "1,-1");
+        $this->hive->play("B", "-2,3");
+
+        $valid = $this->hive->checkValidMove("-1,0", "-3,3");
+
+        // assert
+        $this->assertTrue($valid);
+    }
+
+    public function testSpiderInvalidMoveOccupied() {
+        // arrange and act
+        $this->hive->restart();
+        $this->hive->play("Q", "0,0");
+        $this->hive->play("S", "0,1");
+        $this->hive->play("S", "-1,0");
+        $this->hive->play("Q", "-1,2");
+        $this->hive->play("B", "1,-1");
+        $this->hive->play("B", "-2,3");
+
+        $valid = $this->hive->checkValidMove("-1,0", "-2,3");
+
+        // assert
+        $this->assertFalse($valid);
+    }
 }

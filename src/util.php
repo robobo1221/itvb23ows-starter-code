@@ -183,4 +183,37 @@ class BoardUtil {
 
         return false;
     }
+
+    public static function spider($board, $from, $to) {
+        if ($from == $to) {
+            return false;
+        }
+
+        $explored = [];
+        $queue = [[$from, 0]];
+
+        while (count($queue) > 0) {
+            $current = array_shift($queue);
+            $pos = $current[0];
+            $distance = $current[1];
+
+            if ($pos == $to && $distance == 3) {
+                return true;
+            }
+
+            $explored[] = $pos;
+
+            foreach (self::$OFFSETS as $pq) {
+                $p = explode(',', $pos)[0] + $pq[0];
+                $q = explode(',', $pos)[1] + $pq[1];
+                $newPos = "$p,$q";
+
+                if (!in_array($newPos, $explored) && !isset($board[$newPos]) && ($distance + 1) <= 3 && self::hasNeighBour($newPos, $board)) {
+                    $queue[] = [$newPos, $distance + 1];
+                }
+            }
+        }
+
+        return false;
+    }
 }

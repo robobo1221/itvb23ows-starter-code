@@ -82,6 +82,8 @@ class Hive {
                         $_SESSION['error'] = 'Grasshopper must jump over other tiles';
                     } else if ($tile[1] == "A" && !BoardUtil::ant($this->board, $from, $to)) {
                         $_SESSION['error'] = 'Ant must move to border and not be surrounded by other tiles or pushed by other tiles';
+                    } else if ($tile[1] == "S" && !BoardUtil::spider($this->board, $from, $to)) {
+                        $_SESSION['error'] = 'Spider must move exactly three spaces or cannot explore same space twice.';
                     } else {
                         return true;
                     }
