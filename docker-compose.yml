@@ -35,3 +35,10 @@ services:
     volumes:
       - ./mysql_data:/var/lib/mysql
       - ./hive.sql:/docker-entrypoint-initdb.d/hive.sql:ro
+
+  hive-ai:
+    container_name: hive-ai
+    build:
+      dockerfile: dockerfileai
+    ports:
+      - "5000:5000"

@@ -219,6 +219,10 @@ class BoardUtil {
 
     public static function lost($player, $board) {
         foreach ($board as $pos => $tile) {
+            if (!isset($tile[count($tile) - 1])) {
+                continue;
+            }
+
             $mainTile = $tile[count($tile) - 1];
 
             if ($mainTile[1] != "Q" || $mainTile[0] != $player) {

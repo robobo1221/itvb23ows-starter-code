@@ -9,12 +9,14 @@ include_once "database.php";
 
 class Hive {
     public ?DataService $data;
+    public ?AiService $ai;
     public $hand;
     public $player;
     public $board;
 
-    public function __construct($data = null) {
+    public function __construct($data = null, $ai = null) {
         $this->data = $data;
+        $this->ai = $ai;
 
         session_start();
 
@@ -240,6 +242,38 @@ class Hive {
             echo "White wins!";
         } elseif (BoardUtil::draw($this->board)) {
             echo "Draw!";
+        }
+    }
+
+    public function playAiMove() {
+        // Logic for processing the AI
+        $moves = $this->data->getPreviousGameMoves($_SESSION['game_id']);
+        $moveNum = $moves->num_rows;
+
+        $ai = $this->ai->getMove($this->board, $this->hand, $this->player, $moveNum);
+
+        if (!isset($ai)) {
+            $_SESSION['error'] = "AI failed to make a move";
+            return;
+        }
+
+        $moveType = $ai[0];
+        $moveFrom = $ai[1];
+        $moveTo = $ai[2];
+
+        if ($moveType == "play") {
+            $this->board[$moveTo] = [[$this->player, $moveFrom]];
+            $this->hand[$this->player][$moveFrom]--;
+            $this->player = 1 - $this->player;
+            $this->saveMove($moveFrom, $moveTo, 'play');
+        } elseif ($moveType == "move") {
+            $tile = array_pop($this->board[$moveFrom]);
+            $this->board[$moveTo] = [$tile];
+            $this->player = 1 - $this->player;
+            $this->saveMove($moveFrom, $moveTo, 'move');
+        } elseif ($moveType == "pass") {
+            $this->player = 1 - $this->player;
+            $this->saveMove(null, null, 'move');
         }
     }
 
