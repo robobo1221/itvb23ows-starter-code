@@ -216,4 +216,33 @@ class BoardUtil {
 
         return false;
     }
+
+    public static function lost($player, $board) {
+        foreach ($board as $pos => $tile) {
+            $mainTile = $tile[count($tile) - 1];
+
+            if ($mainTile[1] != "Q" || $mainTile[0] != $player) {
+                continue;
+            }
+
+            $count = 0;
+            foreach (self::$OFFSETS as $pq) {
+                $p = explode(',', $pos)[0] + $pq[0];
+                $q = explode(',', $pos)[1] + $pq[1];
+                if (isset($board["$p,$q"])) {
+                    $count++;
+                }
+            }
+
+            if ($count == 6) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function draw($board) {
+        return self::lost(0, $board) && self::lost(1, $board);
+    }
 }

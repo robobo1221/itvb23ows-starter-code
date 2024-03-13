@@ -233,6 +233,16 @@ class Hive {
         }
     }
 
+    public function printWinner() {
+        if (BoardUtil::lost(0, $this->board)) {
+            echo "Black wins!";
+        } elseif (BoardUtil::lost(1, $this->board)) {
+            echo "White wins!";
+        } elseif (BoardUtil::draw($this->board)) {
+            echo "Draw!";
+        }
+    }
+
     public function getAllMoves() {
         // Logic for getting all the moves
         return BoardUtil::getAllPlays($this->board);

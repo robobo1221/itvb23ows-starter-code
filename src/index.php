@@ -60,6 +60,7 @@
         </div>
         <div class="turn">
             Turn: <?php if ($hive->getPlayer() == 0) echo "White"; else echo "Black"; ?>
+            <?php $hive->printWinner(); ?>
         </div>
         <form method="post" action="index.php">
             <select name="piece">

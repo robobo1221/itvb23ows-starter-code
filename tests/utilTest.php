@@ -160,4 +160,88 @@ class UtilTest extends TestCase {
         // assert
         $this->assertFalse($valid);
     }
+
+    public function testPlayerLostTrue() {
+        // arrange
+        $board = [
+            '0,0' => [[0, "Q"]],
+            '0,1' => [[1, "Q"]],
+            '1,0' => [[1, "B"]],
+            '1,-1' => [[1, "B"]],
+            '-1,0' => [[1, "B"]],
+            '0,-1' => [[1, "A"]],
+            '-1,1' => [[1, "A"]]
+        ];
+
+        // act
+        $lost = BoardUtil::lost(0, $board);
+
+        // assert
+        $this->assertTrue($lost);
+    }
+
+    public function testPlayerLostFalse() {
+        // arrange
+        $board = [
+            '0,-2' => [[0, "Q"]],
+            '0,1' => [[1, "Q"]],
+            '1,0' => [[1, "B"]],
+            '1,-1' => [[1, "B"]],
+            '-1,0' => [[1, "B"]],
+            '0,-1' => [[1, "A"]],
+            '-1,1' => [[1, "A"]]
+        ];
+
+        // act
+        $lost = BoardUtil::lost(0, $board);
+
+        // assert
+        $this->assertFalse($lost);
+    }
+
+    public function testDrawTrue() {
+        // arrange
+        $board = [
+            '0,0' => [[0, "Q"]],
+            '0,1' => [[1, "A"]],
+            '1,0' => [[1, "B"]],
+            '-1,0' => [[1, "B"]],
+            '0,-1' => [[1, "A"]],
+            '-1,1' => [[1, "A"]],
+            '0,-1' => [[1, "Q"]],
+            '0,-2' => [[0, "B"]],
+            '1,-2' => [[0, "B"]],
+            '-1,-1' => [[0, "B"]],
+            '1,-1' => [[0, "G"]],
+        ];
+
+        // act
+        $lost = BoardUtil::draw($board);
+
+        // assert
+        $this->assertTrue($lost);
+    }
+
+    public function testDrawFalse() {
+        // arrange
+        $board = [
+            '0,0' => [[0, "Q"]],
+            '0,1' => [[1, "A"]],
+            '1,0' => [[1, "B"]],
+            '-1,0' => [[1, "B"]],
+            '0,-1' => [[1, "A"]],
+            '-1,1' => [[1, "A"]],
+            '0,-3' => [[1, "Q"]],
+            '0,-2' => [[0, "B"]],
+            '1,-2' => [[0, "B"]],
+            '-1,-1' => [[0, "B"]],
+            '1,-1' => [[0, "G"]],
+        ];
+
+        // act
+        $lost = BoardUtil::draw($board);
+
+        // assert
+        $this->assertFalse($lost);
+    }
 }
