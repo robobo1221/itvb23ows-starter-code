@@ -18,6 +18,8 @@ services:
     volumes:
       - ./src:/app/src
       - ./tests:/app/tests
+    profiles:
+      - hive
 
   db:
     image: mysql:latest
@@ -35,3 +37,50 @@ services:
     volumes:
       - ./mysql_data:/var/lib/mysql
       - ./hive.sql:/docker-entrypoint-initdb.d/hive.sql:ro
+    profiles:
+      - hive
+
+  hive-ai:
+    container_name: hive-ai
+    build:
+      dockerfile: dockerfileai
+    ports:
+      - "5000:5000"
+    profiles:
+      - hive
+
+  jenkins:
+    image: jenkins
+    build: ./jenkins
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      - JENKINS_ADMIN_ID=admin
+      - JENKINS_ADMIN_PASSWORD=password
+    volumes:
+      - jenkinshome:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
+    networks:
+      - jenkins
+
+  sonarqube:
+    image: sonarqube:latest
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    ports:
+      - "9000:9000"
+    networks:
+      - jenkins
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+
+networks:
+  jenkins:
+    driver: bridge
+
+volumes:
+  jenkinshome:
+  sonarqube_data:

@@ -9,12 +9,14 @@ include_once "database.php";
 
 class Hive {
     public ?DataService $data;
+    public ?AiService $ai;
     public $hand;
     public $player;
     public $board;
 
-    public function __construct($data = null) {
+    public function __construct($data = null, $ai = null) {
         $this->data = $data;
+        $this->ai = $ai;
 
         session_start();
 
@@ -44,20 +46,18 @@ class Hive {
         // Logic for checking if a move is valid
         if (!isset($this->board[$from])) {
             $_SESSION['error'] = 'Board position is empty';
-            return false;
-        } elseif ($this->board[$from][count($this->board[$from]) - 1][0] != $this->player) {
+        } elseif (isset($this->board[$from][count($this->board[$from]) - 1][0]) && $this->board[$from][count($this->board[$from]) - 1][0] != $this->player) {
             $_SESSION['error'] = "Tile is not owned by player";
-            return false;
         } elseif ($this->hand[$this->player]['Q']) {
             $_SESSION['error'] = "Queen bee is not played";
-            return false;
         } else {
-            $tile = array_pop($this->board[$from]);
-            if (!BoardUtil::hasNeighBour($to, $this->board)) {
+            $board = $this->board;
+            $tile = array_pop($board[$from]);
+
+            if (!BoardUtil::hasNeighBour($to, $board)) {
                 $_SESSION['error'] = "Move would split hive";
-                return false;
             } else {
-                $all = array_keys($this->board);
+                $all = array_keys($board);
                 $queue = [array_shift($all)];
                 while ($queue) {
                     $next = explode(',', array_shift($queue));
@@ -73,33 +73,60 @@ class Hive {
                 }
                 if ($all) {
                     $_SESSION['error'] = "Move would split hive";
-                    return false;
                 } else {
                     if ($from == $to) {
                         $_SESSION['error'] = 'Tile must move';
-                        return false;
-                    } else if (isset($this->board[$to]) && $tile[1] != "B") {
+                    } else if (isset($board[$to]) && $tile[1] != "B") {
                         $_SESSION['error'] = 'Tile not empty';
-                        return false;
                     } else if (($tile[1] == "Q" || $tile[1] == "B")) {
-                        if (!BoardUtil::slide($this->board, $from, $to)) {
+                        if (!BoardUtil::slide($board, $from, $to)) {
                             $_SESSION['error'] = 'Tile must slide';
-                            return false;
                         }  
+                    } else if ($tile[1] == "G" && !BoardUtil::grassHopper($board, $from, $to)) {
+                        $_SESSION['error'] = 'Grasshopper must jump over other tiles';
+                    } else if ($tile[1] == "A" && !BoardUtil::ant($board, $from, $to)) {
+                        $_SESSION['error'] = 'Ant must move to border and not be surrounded by other tiles or pushed by other tiles';
+                    } else if ($tile[1] == "S" && !BoardUtil::spider($board, $from, $to)) {
+                        $_SESSION['error'] = 'Spider must move exactly three spaces or cannot explore same space twice.';
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function pass() {
+        // Logic for passing the turn
+        if (!$this->checkPass()) {
+            return;
+        }
+
+        $this->player = 1 - $this->player;
+        $this->saveMove(null, null, 'move');
+    }
+
+    public function checkPass() {
+        if (array_sum($this->hand[$this->player]) > 0 && count($this->getPossibleMoves()) > 0) {
+            return false;
+        }
+
+        foreach ($this->board as $pos => $tile) {
+            if ($tile[0][0] == $this->player) {
+                $moves = $this->getAllMoves();
+
+                foreach ($moves as $move) {
+                    if ($this->checkValidMove($pos, $move)) {
+                        fwrite(STDERR, print_r("Valid move: $pos -> $move", TRUE));
+                        return false;
                     }
                 }
             }
         }
 
         return true;
-    }
-
-    public function pass() {
-        // Logic for passing the turn
-
-        // TODO: Implement pass check valid
-        $this->player = 1 - $this->player;
-        $this->saveMove(null, null, 'move');
     }
 
     public function play($piece, $to) {
@@ -208,6 +235,48 @@ class Hive {
         }
     }
 
+    public function printWinner() {
+        if (BoardUtil::lost(0, $this->board)) {
+            echo "Black wins!";
+        } elseif (BoardUtil::lost(1, $this->board)) {
+            echo "White wins!";
+        } elseif (BoardUtil::draw($this->board)) {
+            echo "Draw!";
+        }
+    }
+
+    public function playAiMove() {
+        // Logic for processing the AI
+        $moves = $this->data->getPreviousGameMoves($_SESSION['game_id']);
+        $moveNum = $moves->num_rows;
+
+        $ai = $this->ai->getMove($this->board, $this->hand, $this->player, $moveNum);
+
+        if (!isset($ai)) {
+            $_SESSION['error'] = "AI failed to make a move";
+            return;
+        }
+
+        $moveType = $ai[0];
+        $moveFrom = $ai[1];
+        $moveTo = $ai[2];
+
+        if ($moveType == "play") {
+            $this->board[$moveTo] = [[$this->player, $moveFrom]];
+            $this->hand[$this->player][$moveFrom]--;
+            $this->player = 1 - $this->player;
+            $this->saveMove($moveFrom, $moveTo, 'play');
+        } elseif ($moveType == "move") {
+            $tile = array_pop($this->board[$moveFrom]);
+            $this->board[$moveTo] = [$tile];
+            $this->player = 1 - $this->player;
+            $this->saveMove($moveFrom, $moveTo, 'move');
+        } elseif ($moveType == "pass") {
+            $this->player = 1 - $this->player;
+            $this->saveMove(null, null, 'move');
+        }
+    }
+
     public function getAllMoves() {
         // Logic for getting all the moves
         return BoardUtil::getAllPlays($this->board);
@@ -234,18 +303,6 @@ class Hive {
 
     public function getPlayer() {
         return $this->player;
-    }
-
-    public function manageHand() {
-        // Logic for managing the player's hand
-    }
-
-    public function managePlayer() {
-        // Logic for managing the player's information
-    }
-
-    public function manageBoard() {
-        // Logic for managing the game board
     }
 
     public function getHand($player) {

@@ -3,10 +3,12 @@
     include_once "dataService.php";
     include_once "rules.php";
     include_once "hive.php";
+    include_once "aiService.php";
 
     $databaseConnection = DataService::getDatabaseConnection();
     $dataService = new DataService($databaseConnection);
-    $hive = new Hive($dataService);
+    $aiService = new AiService();
+    $hive = new Hive($dataService, $aiService);
 
     $to = $hive->getPossibleMoves();
 
@@ -21,6 +23,8 @@
             $hive->undo();
         } else if (isset($_POST['Restart'])) {
             $hive->restart();
+        } else if (isset($_POST['Ai'])) {
+            $hive->playAiMove();
         }
         header('Location: index.php');
     }
@@ -60,6 +64,7 @@
         </div>
         <div class="turn">
             Turn: <?php if ($hive->getPlayer() == 0) echo "White"; else echo "Black"; ?>
+            <p><b><?php $hive->printWinner(); ?></b></p>
         </div>
         <form method="post" action="index.php">
             <select name="piece">
@@ -98,6 +103,9 @@
                 ?>
             </select>
             <input type="submit" name="Move" value="Move">
+        </form>
+        <form method="post" action="index.php">
+            <input type="submit" name="Ai" value="Play AI move">
         </form>
         <form method="post" action="index.php">
             <input type="submit" name="Pass" value="Pass">

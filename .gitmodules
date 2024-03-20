@@ -1,0 +1,3 @@
+[submodule "itvb23ows-hive-ai"]
+	path = itvb23ows-hive-ai
+	url = https://github.com/hanze-hbo-ict/itvb23ows-hive-ai

@@ -118,4 +118,135 @@ class BoardUtil {
 
         return $from;
     }
+
+    public static function grassHopper($board, $from, $to) {
+        $posFrom = explode(',', $from);
+        $posTo = explode(',', $to);
+
+        $diffx = $posTo[0] - $posFrom[0];
+        $diffy = $posTo[1] - $posFrom[1];
+
+        // Check if the move is a straight vertical or diagonal line.
+        if (abs($diffx) != abs($diffy) && $diffx != 0 && $diffy != 0) {
+            return false;
+        }
+
+        if ($diffx == 0) {
+            $diffx = 0;
+        } else {
+            $diffx = $diffx / abs($diffx);
+        }
+
+        if ($diffy == 0) {
+            $diffy = 0;
+        } else {
+            $diffy = $diffy / abs($diffy);
+        }
+
+        $nextPosX = $posFrom[0];
+        $nextPosY = $posFrom[1];
+
+        $valid = false;
+        while ($nextPosX != $posTo[0] || $nextPosY != $posTo[1]) {
+            $pos = ($posFrom[0] + $diffx).','.($posFrom[1] + $diffy);
+
+            if (isset($board[$pos])) {
+                $valid = true;
+            }
+
+            $nextPosX += $diffx;
+            $nextPosY += $diffy;
+        }
+
+        return $valid;
+    }
+
+    public static function ant($board, $from, $to) {
+        if ($from == $to) {
+            return false;
+        }
+
+        // Check count of neighbours. More than 5 is invalid.
+        $neighbours = 0;
+
+        foreach (self::$OFFSETS as $pq) {
+            $p = explode(',', $to)[0] + $pq[0];
+            $q = explode(',', $to)[1] + $pq[1];
+            if (isset($board["$p,$q"])) {
+                $neighbours++;
+            }
+        }
+
+        if ($neighbours > 0 && $neighbours < 5) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function spider($board, $from, $to) {
+        if ($from == $to) {
+            return false;
+        }
+
+        $explored = [];
+        $queue = [[$from, 0]];
+
+        while (count($queue) > 0) {
+            $current = array_shift($queue);
+            $pos = $current[0];
+            $distance = $current[1];
+
+            if ($pos == $to && $distance == 3) {
+                return true;
+            }
+
+            $explored[] = $pos;
+
+            foreach (self::$OFFSETS as $pq) {
+                $p = explode(',', $pos)[0] + $pq[0];
+                $q = explode(',', $pos)[1] + $pq[1];
+                $newPos = "$p,$q";
+
+                if (!in_array($newPos, $explored) && !isset($board[$newPos]) && ($distance + 1) <= 3 && self::hasNeighBour($newPos, $board)) {
+                    $queue[] = [$newPos, $distance + 1];
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static function lost($player, $board) {
+        foreach ($board as $pos => $tile) {
+            if (!isset($tile[count($tile) - 1])) {
+                continue;
+            }
+
+            $mainTile = $tile[count($tile) - 1];
+
+            if ($mainTile[1] != "Q" || $mainTile[0] != $player) {
+                continue;
+            }
+
+            $count = 0;
+            foreach (self::$OFFSETS as $pq) {
+                $p = explode(',', $pos)[0] + $pq[0];
+                $q = explode(',', $pos)[1] + $pq[1];
+                if (isset($board["$p,$q"])) {
+                    $count++;
+                }
+            }
+
+            if ($count == 6) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function draw($board) {
+        return self::lost(0, $board) && self::lost(1, $board);
+    }
 }

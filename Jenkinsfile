@@ -19,8 +19,8 @@ pipeline {
         stage('Build and Run Docker Compose') {
             steps {
                 script {
-                    dockerComposeBuild = "docker-compose -f docker-compose.yml build"
-                    dockerComposeUp = "docker-compose -f docker-compose.yml up -d"
+                    dockerComposeBuild = "docker-compose -f docker-compose.yml --profile hive build"
+                    dockerComposeUp = "docker-compose -f docker-compose.yml --profile hive up -d"
 
                     sh "${dockerComposeBuild}"
                     sh "${dockerComposeUp}"
@@ -43,6 +43,16 @@ pipeline {
                 script {
                     docker.image(DOCKER_IMAGE_PHP).inside {
                         sh 'php --version'
+                    }
+                }
+            }
+        }
+        
+        stage('Unit Test') {
+            steps {
+                script {
+                    docker.image(DOCKER_IMAGE_PHP).inside {
+                        sh './vendor/bin/phpunit'
                     }
                 }
             }

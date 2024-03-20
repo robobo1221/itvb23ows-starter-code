@@ -1,0 +1,8 @@
+FROM python:3.12.2-alpine3.18
+WORKDIR /ai
+
+COPY ./itvb23ows-hive-ai/ .
+RUN pip install flask
+
+# flask --app app run --debug
+CMD ["flask", "--app", "app", "run", "-h", "0.0.0.0", "--debug"]
