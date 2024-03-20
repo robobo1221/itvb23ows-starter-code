@@ -57,6 +57,7 @@ class HiveTest extends TestCase {
 
     public function testGrasshopperValidMove() {
         // arange
+        $this->hive->restart();
         $this->hive->play("G", "0,0");
         $this->hive->play("A", "0,1");
         $this->hive->play("Q", "0,-1");
