@@ -12,6 +12,9 @@ RUN apt-get update && \
     apt-get install -y docker.io docker-compose && \
     rm -rf /var/lib/apt/lists/* && \
     usermod -aG docker jenkins
+
+# make sure that jenkins can access docker
+RUN usermod -aG docker jenkins
 USER jenkins
 
 #COPY job-dsl-script.groovy /usr/share/jenkins/ref/init.groovy.d/
