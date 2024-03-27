@@ -46,6 +46,7 @@ services:
     container_name: hive-ai
     build:
       dockerfile: dockerfileai
+      context: ./
     ports:
       - "5000:5000"
     profiles:
