@@ -4,8 +4,6 @@ use Util\BoardUtil;
 use Game\GameRules;
 use SebastianBergmann\Type\TypeName;
 
-include_once "database.php";
-
 class Hive {
     public ?DataService $data;
     public ?AiService $ai;
@@ -75,17 +73,17 @@ class Hive {
                 } else {
                     if ($from == $to) {
                         $_SESSION['error'] = 'Tile must move';
-                    } else if (isset($board[$to]) && $tile[1] != "B") {
+                    } elseif (isset($board[$to]) && $tile[1] != "B") {
                         $_SESSION['error'] = 'Tile not empty';
-                    } else if (($tile[1] == "Q" || $tile[1] == "B")) {
+                    } elseif (($tile[1] == "Q" || $tile[1] == "B")) {
                         if (!BoardUtil::slide($board, $from, $to)) {
                             $_SESSION['error'] = 'Tile must slide';
                         }  
-                    } else if ($tile[1] == "G" && !BoardUtil::grassHopper($board, $from, $to)) {
+                    } elseif ($tile[1] == "G" && !BoardUtil::grassHopper($board, $from, $to)) {
                         $_SESSION['error'] = 'Grasshopper must jump over other tiles';
-                    } else if ($tile[1] == "A" && !BoardUtil::ant($board, $from, $to)) {
+                    } elseif ($tile[1] == "A" && !BoardUtil::ant($board, $from, $to)) {
                         $_SESSION['error'] = 'Ant must move to border and not be surrounded by other tiles or pushed by other tiles';
-                    } else if ($tile[1] == "S" && !BoardUtil::spider($board, $from, $to)) {
+                    } elseif ($tile[1] == "S" && !BoardUtil::spider($board, $from, $to)) {
                         $_SESSION['error'] = 'Spider must move exactly three spaces or cannot explore same space twice.';
                     } else {
                         return true;
@@ -140,25 +138,27 @@ class Hive {
     }
 
     public function checkValidPlay($piece, $to) {
+        $isValid = true;
+        $errorMessage = "";
+    
         // Logic for checking if a play is valid
-        if (!GameRules::playerHasTile($this->getHand($this->player), $piece)) {
-            $_SESSION['error'] = "Player does not have tile";
-            return false;
+        if (!GameRules::playerHasTile($hand = $this->getHand($this->player), $piece)) {
+            $errorMessage = "Player does not have tile";
         } elseif (GameRules::isPositionOccupied($this->board, $to)) {
-            $_SESSION['error'] = 'Board position is not empty';
-            return false;
+            $errorMessage = 'Board position is not empty';
         } elseif (!GameRules::positionHasNeighBour($this->board, $to)) {
-            $_SESSION['error'] = "board position has no neighbour";
-            return false;
-        } elseif (GameRules::positionHasOpposingNeighBour($this->getHand($this->player), $this->player, $to, $this->board)) {
-            $_SESSION['error'] = "Board position has opposing neighbour";
-            return false;
-        } elseif (GameRules::needsToPlayQueenBee($this->getHand($this->player)) && $piece != "Q") {
-            $_SESSION['error'] = 'Must play queen bee';
-            return false;
+            $errorMessage = "board position has no neighbour";
+        } elseif (GameRules::positionHasOpposingNeighBour($hand, $this->player, $to, $this->board)) {
+            $errorMessage = "Board position has opposing neighbour";
+        } elseif (GameRules::needsToPlayQueenBee($hand) && $piece != "Q") {
+            $errorMessage = 'Must play queen bee';
+        } else {
+            return true;
         }
-
-        return true;
+    
+        $_SESSION['error'] = $errorMessage;
+    
+        return false;
     }
 
     public function restart() {
