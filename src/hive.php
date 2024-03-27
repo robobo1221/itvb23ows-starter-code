@@ -2,8 +2,7 @@
 
 use Util\BoardUtil;
 use Game\GameRules;
-use Database\DatabaseConnection;
-use Database\GameState;
+use SebastianBergmann\Type\TypeName;
 
 include_once "database.php";
 
@@ -119,7 +118,6 @@ class Hive {
 
                 foreach ($moves as $move) {
                     if ($this->checkValidMove($pos, $move)) {
-                        fwrite(STDERR, print_r("Valid move: $pos -> $move", TRUE));
                         return false;
                     }
                 }
@@ -177,6 +175,32 @@ class Hive {
 
     public function undo() {
         // Logic for undoing the last move
+        if ($this->data == null || !isset($_SESSION['last_move']) || !isset($_SESSION['game_id'])) {
+            return;
+        }
+
+        $restoreMove = $this->data->getMove($_SESSION['last_move']-1);
+
+        if ($restoreMove === null) {
+            // No moves to undo
+            $this->restart();
+            return;
+        }
+
+        if ($_SESSION['game_id'] != $restoreMove['game_id']) {
+            $this->restart();
+            return;
+        }
+
+        $lastState = unserialize($restoreMove['state']);
+        $this->hand = $lastState[0];
+        $this->board = $lastState[1];
+        $this->player = $lastState[2];
+
+        $this->saveState();
+
+        $this->data->deleteMove($_SESSION['last_move']);
+        $_SESSION['last_move'] = $restoreMove['id'];
     }
 
     public function getState() {
@@ -194,6 +218,10 @@ class Hive {
     public function saveMove($from, $to, $type) {
         // Logic for saving a move to the database
         $this->saveState();
+
+        if (!isset($_SESSION['last_move'])){
+            $_SESSION['last_move'] = $this->data->getLastMove()[0];
+        }
 
         if ($this->data !== null) {
             $inset_id = $this->data->registerMove($_SESSION['game_id'], $type, $from, $to, $_SESSION['last_move'], $this->getState());

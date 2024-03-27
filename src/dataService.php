@@ -33,6 +33,19 @@ class DataService {
         return $stmt->get_result()->fetch_array();
     }
 
+    public function getLastMove() {
+        $stmt = $this->db->prepare('SELECT * FROM moves ORDER BY id DESC LIMIT 1');
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_array();
+    }
+
+    public function deleteMove($moveId) {
+        $stmt = $this->db->prepare('DELETE FROM moves WHERE id = ?');
+        $stmt->bind_param('i', $moveId);
+        $stmt->execute();
+    }
+
     public function getPreviousGameMoves($gameId) {
         $stmt = $this->db->prepare('SELECT * FROM moves WHERE game_id = ?');
         $stmt->bind_param('i', $gameId);    // Make sure we bind the parameter to the statement. Otherwise injection is possible.

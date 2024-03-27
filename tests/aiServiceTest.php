@@ -14,16 +14,21 @@ class AiServiceTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
 
+        $mockResult = Mockery::mock();
+        $mockResult->shouldReceive('fetch_array')->andReturn(['some', 'data']);
+
+        $mockStmt = Mockery::mock(mysqli_stmt::class);
+        $mockStmt->shouldReceive('execute')->andReturn(true);
+        $mockStmt->shouldReceive('get_result')->andReturn($mockResult); // Mocking get_result method
+
         $mockMysqli = Mockery::mock(mysqli::class);
         $mockMysqli->shouldReceive('query')->andReturn(true);
-        $mockMysqli->shouldReceive('prepare')->andReturn(Mockery::mock(mysqli_stmt::class));
-        $mockMysqli->shouldReceive('bind_param')->andReturn(true);
-        $mockMysqli->shouldReceive('execute')->andReturn(true);
+        $mockMysqli->shouldReceive('prepare')->andReturn($mockStmt);
         $mockMysqli->shouldReceive('fetch')->andReturn(true);
         $mockMysqli->shouldReceive('close')->andReturn(true);
         $mockMysqli->makePartial();
 
-        $this->dataService = Mockery::mock(DataService::class, [$mockMysqli]);
+        $this->dataService = Mockery::mock(DataService::class, [$mockMysqli])->makePartial();
         $this->dataService->shouldReceive("getPreviousGameMoves")->with(1)->andReturn((object)[ "num_rows" => 3 ]);
         $this->dataService->shouldReceive("initGame")->andReturn(1);
         $this->dataService->shouldReceive("registerMove")->andReturn(1);
