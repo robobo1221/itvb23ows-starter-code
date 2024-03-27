@@ -138,7 +138,6 @@ class Hive {
     }
 
     public function checkValidPlay($piece, $to) {
-        $isValid = true;
         $errorMessage = "";
     
         // Logic for checking if a play is valid
